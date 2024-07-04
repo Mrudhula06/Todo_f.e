@@ -1,0 +1,89 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(to right top, #ffffff, #e0e0e4, #c2c3c9, #a4a6af, #868a96);
+    color: white; /* Adjust text color as needed */
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    /* justify-content: center;
+    align-items: center; */
+}
+
+#root {
+    width: 100%;
+}
+
+.home{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* background-color: #142E54; */
+    color: black;
+}
+
+.create_input{
+    width: 300px;
+    padding: 10px;
+    /* background-color: #FCB69A; */
+    margin-right: 10px;
+    border-radius: 5px;
+    border-bottom: 1px solid #F2F3F7;
+    outline: none;
+}
+
+.add_button{
+    padding: 10px;
+    background-color: #00c9b7;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.task{
+    display: flex;
+    align-items: center;
+    width: 345px;
+    justify-content: space-between;
+    background-color: #00c9b7;
+    color: white;
+    height: 35px;
+    font-weight: bold;
+    padding: 2px 5px 2px 5px;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+.checkbox{
+    display: flex;
+    align-items: center;
+}
+
+.line_through{
+    text-decoration: line-through;
+}
+
+.checkbox .icon{
+    margin-right: 5px;
+    font-size: 15px;
+}
+
+.task p{
+    margin: 0;
+    flex-grow: 1;
+}
+
+.task .actions {
+    display: flex;
+    align-items: center;
+}
+
+.task .actions .icon {
+    cursor: pointer;
+    margin-left: 10px; /* Add gap between icons */
+}
+
+.error_message{
+    color: red;
+}
