@@ -1,47 +1,40 @@
 import React, { useState } from 'react';
+import { Input, Button, message, Form } from 'antd';
 import axios from 'axios';
 
 function Create({ addTodo }) {
   const [task, setTask] = useState('');
-  const [error, setError] = useState('');
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (task.trim() === '') {
-      setError('Empty record cannot be added');
+      message.error('Task cannot be empty!');
       return;
     }
 
-    axios.post('http://localhost:3000/add', { task: task })
-      .then(result => {
-        addTodo(result.data); // Call addTodo with the new todo
-        setTask(''); // Clear the input field after successful addition
-        setError(''); // Clear the error message after successful addition
-      })
-      .catch(err => console.log(err));
-  };
-
-  const handleChange = (e) => {
-    setTask(e.target.value);
+    try {
+      const result = await axios.post(`${import.meta.env.VITE_APP_API_KEY}/add`, { task });
+      addTodo(result.data);
+      setTask('');
+      message.success('Task added successfully!');
+    } catch (error) {
+      message.error('Failed to add task!');
+    }
   };
 
   return (
-    <div className='create'>
-      <input 
-        type="text" 
-        placeholder="Enter task" 
-        className="create_input" 
-        onChange={handleChange} 
-        value={task} // Ensure input field is controlled
-      />
-      <button 
-        type="button" 
-        className="add_button" 
-        onClick={handleAdd}
-      >
-        Add
-      </button>
-      {error && <p className="error_message">{error}</p>}
-    </div>
+    <Form layout="inline" onFinish={handleAdd}>
+      <Form.Item>
+        <Input
+          placeholder="Enter task"
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+          style={{ width: '300px' }}
+        />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">Add</Button>
+      </Form.Item>
+    </Form>
   );
 }
 

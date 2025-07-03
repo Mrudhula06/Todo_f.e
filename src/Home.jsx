@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Create from './Create'; // Assuming this is the updated Create component
+import Create from './Create';
 import axios from 'axios';
 import { BsCircleFill, BsFillCheckCircleFill, BsFillTrashFill, BsPencilSquare } from 'react-icons/bs';
 
@@ -9,53 +9,13 @@ function Home() {
     const [editTask, setEditTask] = useState('');
 
     useEffect(() => {
-        fetchTodos(); // Fetch todos on initial render
+        fetchTodos();
     }, []);
 
-    const handleEdit = (id) => {
-        axios.put(`${import.meta.env.VITE_APP_API_KEY}/update/${id}`)
-            .then(result => {
-                if (result.data) {
-                    setTodos(prevTodos => 
-                        prevTodos.map(todo => 
-                            todo._id === id ? { ...todo, done: !todo.done } : todo
-                        )
-                    );
-                } else {
-                    console.warn('Unexpected data format received:', result.data);
-                }
-            })
-            .catch(err => console.error('Error updating todo:', err));
-    };
-
-    const handleDelete = (id) => {
-        axios.delete(`${import.meta.env.VITE_APP_API_KEY}/delete/${id}`)
-            .then(result => {
-                if (result.data) {
-                    setTodos(prevTodos => prevTodos.filter(todo => todo._id !== id));
-                } else {
-                    console.warn('Unexpected data format received:', result.data);
-                }
-            })
-            .catch(err => console.error('Error deleting todo:', err));
-    };
-
-    const handleEditSubmit = (id) => {
-        axios.put(`${import.meta.env.VITE_APP_API_KEY}/edit/${id}`, { task: editTask })
-            .then(result => {
-                if (result.data) {
-                    setTodos(prevTodos => 
-                        prevTodos.map(todo => 
-                            todo._id === id ? { ...todo, task: editTask } : todo
-                        )
-                    );
-                    setEditingTodoId(null);
-                    setEditTask('');
-                } else {
-                    console.warn('Unexpected data format received:', result.data);
-                }
-            })
-            .catch(err => console.error('Error updating todo:', err));
+    const addTodo = (newTodo) => {
+        if (newTodo && newTodo.task) {
+            setTodos(prevTodos => [...prevTodos, newTodo]);
+        }
     };
 
     const fetchTodos = () => {
@@ -64,34 +24,53 @@ function Home() {
                 if (Array.isArray(response.data)) {
                     setTodos(response.data);
                 } else {
-                    console.warn('Unexpected data format received:', response.data);
-                    setTodos([]); // Handle non-array data
+                    setTodos([]);
                 }
             })
-            .catch(error => console.error('Error fetching data:', error)); // Improved error message
+            .catch(error => console.error('Error fetching data:', error));
     };
 
-    const addTodo = (newTodo) => {
-        if (newTodo && newTodo.task) { // Check if newTodo is not empty and has a task property
-            setTodos(prevTodos => [...prevTodos, newTodo]);
-        }
+    const handleEdit = (id) => {
+        // Implement edit functionality
+    };
+
+    const handleEditSubmit = (id) => {
+        // Implement save edit functionality
+    };
+
+    const handleDelete = (id) => {
+        axios.delete(`${import.meta.env.VITE_APP_API_KEY}/delete/${id}`)
+            .then(() => fetchTodos())
+            .catch(error => console.error('Error deleting todo:', error));
+    };
+
+    const handlePriorityToggle = (id) => {
+        const todo = todos.find(todo => todo._id === id);
+        axios.put(`${import.meta.env.VITE_APP_API_KEY}/updatePriority/${id}`, {
+            priority: !todo.priority
+        })
+            .then(() => fetchTodos())
+            .catch(error => console.error('Error updating priority:', error));
     };
 
     return (
         <div className='home'>
             <h2>Todo List</h2>
-            <Create addTodo={addTodo} /> {/* Pass addTodo function as prop to Create component */}
+            <Create addTodo={addTodo} />
             {todos.length === 0 ? (
                 <div><h2>No Record</h2></div>
             ) : (
                 todos.map((todo, index) => (
-                    <div className='task' key={index}>
+                    <div
+                        className={`task ${todo.priority ? 'high-priority' : 'low-priority'}`}
+                        key={index}
+                    >
                         {editingTodoId === todo._id ? (
                             <div className='edit-form'>
-                                <input 
-                                    type='text' 
-                                    value={editTask} 
-                                    onChange={(e) => setEditTask(e.target.value)} 
+                                <input
+                                    type='text'
+                                    value={editTask}
+                                    onChange={(e) => setEditTask(e.target.value)}
                                 />
                                 <button onClick={() => handleEditSubmit(todo._id)}>Save</button>
                                 <button onClick={() => setEditingTodoId(null)}>Cancel</button>
@@ -99,18 +78,30 @@ function Home() {
                         ) : (
                             <>
                                 <div className='checkbox' onClick={() => handleEdit(todo._id)}>
-                                    {todo.done ? 
+                                    {todo.done ?
                                         <BsFillCheckCircleFill className='icon' /> :
                                         <BsCircleFill className='icon' />
                                     }
                                     <p className={todo.done ? "line_through" : ""}>{todo.task}</p>
                                 </div>
                                 <div className='actions'>
-                                    <BsPencilSquare className='icon' onClick={() => {
-                                        setEditingTodoId(todo._id);
-                                        setEditTask(todo.task);
-                                    }} />
-                                    <BsFillTrashFill className='icon' onClick={() => handleDelete(todo._id)} />
+                                    <BsPencilSquare
+                                        className='icon'
+                                        onClick={() => {
+                                            setEditingTodoId(todo._id);
+                                            setEditTask(todo.task);
+                                        }}
+                                    />
+                                    <BsFillTrashFill
+                                        className='icon'
+                                        onClick={() => handleDelete(todo._id)}
+                                    />
+                                    <span
+                                        className={`priority-toggle ${todo.priority ? 'high-priority' : 'low-priority'}`}
+                                        onClick={() => handlePriorityToggle(todo._id)}
+                                    >
+                                        {todo.priority ? 'High Priority' : 'Low Priority'}
+                                    </span>
                                 </div>
                             </>
                         )}
